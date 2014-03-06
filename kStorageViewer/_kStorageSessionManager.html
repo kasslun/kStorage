@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <title></title>
+    <link rel="stylesheet" href="cui/themes/default/css/comtop.ui.min.css"/>
+</head>
+<body>
+<h2>
+    即时cookie内容
+</h2>
+<table id="grid">
+    <thead>
+    <tr>
+        <th bindName="name" width="200">cookie名</th>
+        <th bindName="value">cookie值</th>
+    </tr>
+    </thead>
+</table>
+<div id="list" style="font-size: 12px;"></div>
+<script type="text/javascript" src="../kStorage.full.min.js"></script>
+<script type="text/javascript" src="cui/js/comtop.ui.min.js" charset="gbk"></script>
+<script type="text/javascript">
+    var data = parent.data[parent.idIndex._kStorageSessionManager], p, dataP, newData = [];
+    for (p in data) {
+        if (data.hasOwnProperty(p)) {
+            newData.push({
+                name: p,
+                value: data[p]
+            })
+        }
+    }
+    function getBodyWidth () {
+        return (document.documentElement.clientWidth || document.body.clientWidth) - 40;
+    }
+    cui("#grid").grid({
+        selectrows: "no",
+        datasource: function (obj) {
+            obj.setDatasource(newData, newData.length)
+        },
+        pagination: false,
+        gridheight: "auto",
+        resizewidth : getBodyWidth,
+        ellipsis: false
+    });
+</script>
+</body>
+</html>

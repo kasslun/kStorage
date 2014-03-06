@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title></title>
+</head>
+<body>
+<h2>
+    自动完成（输入历史记录）列表
+</h2>
+<div id="list" style="font-size: 12px;"></div>
+<script type="text/javascript" src="../kStorage.full.min.js"></script>
+<script type="text/javascript">
+    var data = parent.data[parent.idIndex._autoCompleteData].data;
+    if (data !== "[]") {
+        document.getElementById("list").innerHTML = kst._tool.parseJSON(data).join("<br />");
+    } else {
+        document.getElementById("list").innerHTML = '<em>记录为空</em>'
+    }
+</script>
+</body>
+</html>

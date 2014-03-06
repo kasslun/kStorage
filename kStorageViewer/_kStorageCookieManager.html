@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title></title>
+    <link rel="stylesheet" href="cui/themes/default/css/comtop.ui.min.css"/>
+</head>
+<body>
+<h2>
+    cookie内容
+</h2>
+<table id="grid">
+    <thead>
+    <tr>
+        <th bindName="name" renderStyle="text-align:center;" width="200">cookie名</th>
+        <th bindName="value">cookie值</th>
+        <th bindName="expires" render="getTime" width="150">过期时间</th>
+    </tr>
+    </thead>
+</table>
+<div id="list" style="font-size: 12px;"></div>
+<script type="text/javascript" src="../kStorage.full.min.js"></script>
+<script type="text/javascript" src="cui/js/comtop.ui.min.js" charset="gbk"></script>
+<script type="text/javascript">
+    var data = parent.data[parent.idIndex._kStorageCookieManager], p, dataP, newData = [];
+    for (p in data) {
+        if (data.hasOwnProperty(p)) {
+            dataP = kst._tool.parseJSON(data[p]);
+            newData.push({
+                name: p,
+                value: kst._tool.stringifyJSON(dataP[0]),
+                expires: dataP[1]
+            })
+        }
+    }
+    function getTime (rowData) {
+        var curTime = rowData.expires;
+        var date = new Date(curTime);
+        return date.getFullYear() + "-" + (date.getMonth() + 1 > 9 ? "" : "0") + (date.getMonth() + 1) + "-" +
+                (date.getDate() > 9 ? "" : "0") + date.getDate() + " " +
+                (date.getHours() > 9 ? "" : "0") + date.getHours() + ":" +
+                (date.getMinutes() > 9 ? "" : "0") + date.getMinutes() + ":" +
+                (date.getSeconds() > 9 ? "" : "0") + date.getSeconds();
+    }
+    function getBodyWidth () {
+        return (document.documentElement.clientWidth || document.body.clientWidth) - 40;
+    }
+    cui("#grid").grid({
+        selectrows: "no",
+        datasource: function (obj) {
+            obj.setDatasource(newData, newData.length)
+        },
+        pagination: false,
+        gridheight: "auto",
+        resizewidth : getBodyWidth
+    });
+</script>
+</body>
+</html>

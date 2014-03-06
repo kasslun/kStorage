@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kStorage查看工具</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <link rel="stylesheet" href="cui/themes/default/css/comtop.ui.min.css"/>
+    <style>
+        body{
+            font-size: 12px;
+            line-height: 2em;
+        }
+        .warn, .red{
+            color:red
+        }
+        .blue{
+            color:#06f;
+        }
+        h1{
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body style="margin:20px;">
+<h1>kStorage本地存储查看工具</h1>
+<h2>本地存储总览</h2>
+<div>浏览器信息: <span id="brower-info"></span><em>(只判断IE6-10,Firefox和Chrome)</em></div>
+<table id="all-cst">
+    <thead>
+    <tr>
+        <th bindName="type">存储类型</th>
+        <th bindName="size">存储大小</th>
+        <th bindName="firefox">Firefox(10.4MB)</th>
+        <th bindName="chrome">Chrome(5.2MB)</th>
+        <th bindName="ie6_7">IE6-7(1.0MB)</th>
+        <th bindName="ie8">IE8(8.4MB)</th>
+        <th bindName="ie9">IE9(14.2MB)</th>
+        <th bindName="ie10">IE10(15.8MB)</th>
+    </tr>
+    </thead>
+</table>
+<h2>kst本地存储总览</h2>
+<table id="cst-cst">
+    <thead>
+    <tr>
+        <th bindName="id" render="renderA">存储ID</th>
+        <th bindName="size" render="renderB" sort="true">存储大小</th>
+        <th bindName="per">大小比例（占kst）</th>
+        <th bindName="len">属性个数</th>
+        <th bindName="expires">过期时间</th>
+        <th bindName="maxage">过期天数</th>
+        <th bindName="usedate">最后使用时间</th>
+        <th bindName="opt" renderStyle="text-align: center">操作</th>
+    </tr>
+    </thead>
+</table>
+<script type="text/javascript" src="../kStorage.full.min.js"></script>
+<script type="text/javascript" src="cui/js/comtop.ui.min.js" charset="gbk"></script>
+<script>
+    (function () {
+        var type = kst.type,
+                allSize,
+                size = 0,
+                otherSize = "未知",
+                brower = "??",
+                ie6_7,
+                tool = kst._tool,
+                ids = [],
+                data = [],
+                myDialog = {},
+                curData,
+                idIndex = {};
+        /**
+         * 判断浏览器
+         */
+        (function () {
+            var browerInfo = document.getElementById("brower-info"),
+                    userAgent = navigator.userAgent,
+                    fontFamily;
+            browerInfo.style.cssText = "font-family:IE\\0;*font-family:IE7;_font-family:IE6;";
+            fontFamily = browerInfo.style.fontFamily;
+            if (fontFamily === "IE6" || fontFamily === "IE7" ) {
+                brower = fontFamily;
+                ie6_7 = true;
+            } else if (fontFamily === "IE" ) {
+                brower = "IE" + /(?:MSIE\s|rv:)(\d+?)\.0/.exec(userAgent)[1];
+            } else {
+                brower = /(Firefox|Chrome)\/\d+?\.\d/.exec(userAgent)[0];
+            }
+            browerInfo.innerHTML = brower;
+            brower = brower.replace(/\/\d+?\.\d/, "");
+        })();
+        /**
+         * 浏览器最大存储量
+         */
+        (function (){
+            var MB = 1024 * 1024,
+                p, nameList, fdoc, div;
+            allSize = {
+                ie6_7: MB,
+                ie8: 8.4 * MB,
+                ie9: 14.2 * MB,
+                ie10: 15.8 * MB,
+                firefox: 10.4 * MB,
+                chrome: 5.2 * MB
+            };
+
+            if (type === "storage") {
+                otherSize = 0;
+                for (p in localStorage) {
+                    if (/^cs_\w+?_$/.test(p)) {
+                        size += 136;
+                        size += localStorage.getItem(p).length * 2;
+                        ids.push(p.slice(3, -1));
+                        data.push(localStorage.getItem(p));
+                    } else if(!/^cs_\w+?_i$/.test(p)) {
+                        otherSize += localStorage.getItem(p).length * 2;
+                    }
+                }
+            } else if (type === "userData") {
+                (function () {
+                    var script, src, path, i, ifm;
+                    script = document.getElementsByTagName("script");
+                    for (i = script.length; i--;) {
+                        src = script[i].getAttribute("src");
+                        if (src) {
+                            src = /^(.*?)kStorage(\.full)?\.min\.js/.exec(src);
+                            if (src) {
+                                path = src[1];
+                                break;
+                            }
+                        }
+                    }
+                    if (path === undefined) {
+                        tool.error("请保证kStorage.full.min.js文件名正确");
+                    }
+                    ifm = document.createElement("iframe");
+                    ifm.src = path + 'carrier.html';
+                    ifm.style.display = "none";
+                    document.body.appendChild(ifm);
+                    fdoc = ifm.contentWindow.document;
+                })();
+                //auto
+                IeCstSize("_autoCompleteData");
+                //cookie
+                IeCstSize("_kStorageCookieManager");
+                //session
+                IeCstSize("_kStorageSessionManager");
+                //manager
+                div = fdoc.createElement("div");
+                fdoc.appendChild(div);
+                div.addBehavior("#default#userData");
+                div.load("cs__kStorageCreateManager_");
+                ids.push("_kStorageCreateManager");
+                size += 136;
+                nameList = div.getAttribute("data");
+                if (!nameList) {
+                    return;
+                }
+                data.push(nameList);
+                size += nameList.length * 2;
+                nameList = tool.parseJSON(nameList.replace(/\u0081/g, '\\"')
+                        .replace(/\u0080/g, '"')).nameList;
+                nameList = tool.parseJSON(nameList);
+                for (p in nameList) {
+                    if (nameList.hasOwnProperty(p) && kst.info(p)) {
+                        IeCstSize (p);
+                    }
+                }
+            }
+            function IeCstSize (id) {
+                var d,
+                div = fdoc.createElement("div");
+                fdoc.appendChild(div);
+                div.addBehavior("#default#userData");
+                div.load("cs_" + id + "_");
+                d = div.getAttribute("data");
+                fdoc.removeChild(div);
+                if (!d) {
+                    return;
+                }
+                ids.push(id);
+                size += 136;
+                size += d.length * 2;
+                data.push(d);
+            }
+        })();
+        //all data
+        function getBodyWidth () {
+            return (document.documentElement.clientWidth || document.body.clientWidth) - 40;
+        }
+        function getBodyHeight () {
+            return (document.documentElement.clientHeight || document.body.clientHeight) - 20;
+        }
+        function getPercentage(n, p) {
+            if (n === "未知"){
+                return n;
+            }
+            var v = Math.round(n / allSize[p] * 10000) / 100;
+            if (v > 90) {
+                v = '<span class="warn">' + v + '</span>'
+            }
+            return v + "%";
+        }
+        window.fixB = function (size) {
+            if (size / (1024 * 1024) > 1) {
+                return Math.round(size / (1024 * 1024) * 100) / 100 + " MB";
+            }
+            if (size / 1024 > 1) {
+                return Math.round(size / 1024 * 100) / 100 + " KB";
+            }
+            return size + " B";
+        };
+        cui("#all-cst").grid({
+            selectrows: "no",
+            datasource: function (obj) {
+                obj.setDatasource([
+                    {
+                        type: "kst创建的存储",
+                        size: fixB (size),
+                        ie6_7: getPercentage(size, "ie6_7"),
+                        ie8: getPercentage(size, "ie8"),
+                        ie9: getPercentage(size, "ie9"),
+                        ie10: getPercentage(size, "ie10"),
+                        firefox: getPercentage(size, "firefox"),
+                        chrome: getPercentage(size, "chrome")
+                    },
+                    {
+                        type: "非kst创建的存储",
+                        size: fixB (otherSize),
+                        ie6_7: getPercentage(otherSize, "ie6_7"),
+                        ie8: getPercentage(otherSize, "ie8"),
+                        ie9: getPercentage(otherSize, "ie9"),
+                        ie10: getPercentage(otherSize, "ie10"),
+                        firefox: getPercentage(otherSize, "firefox"),
+                        chrome: getPercentage(otherSize, "chrome")
+                    }
+                ], 10)
+            },
+            pagination: false,
+            gridheight: "auto",
+            resizewidth : getBodyWidth
+        });
+        //kst data
+
+        function getTime (curTime, a) {
+            if (a === 0) {
+                return "浏览器关闭后过期";
+            }
+            a = a || 0;
+            var date = new Date(curTime + a * 86400000);
+            return date.getFullYear() + "-" + (date.getMonth() + 1 > 9 ? "" : "0") + (date.getMonth() + 1) + "-" +
+                    (date.getDate() > 9 ? "" : "0") + date.getDate() + " " +
+                    (date.getHours() > 9 ? "" : "0") + date.getHours() + ":" +
+                    (date.getMinutes() > 9 ? "" : "0") + date.getMinutes() + ":" +
+                    (date.getSeconds() > 9 ? "" : "0") + date.getSeconds();
+        }
+        //获取数据
+        (function () {
+            var curTime = new Date().getTime(),
+                    i,
+                    id, info,
+                    len = data.length,
+                    dataI, DataIlen, p;
+            curData = [];
+            for (i = 0; i < len; i++) {
+                id = ids[i];
+                info = kst.info(id);
+                dataI = data[i];
+                if ("_autoCompleteData _kStorageCreateManager _kStorageSessionManager _kStorageCookieManager".indexOf(id) > -1) {
+                    curData.push({
+                        id: id,
+                        size: dataI.length * 2 + 136,
+                        expires: "-",
+                        per: Math.round((data[i].length * 2 + 136) / size * 10000) / 100 + "%",
+                        maxage: "-",
+                        usedate: "-",
+                        opt: "-",
+                        len: "-"
+                    });
+                    dataI = data[i] = tool.parseJSON(dataI.replace(/\u0081/g, '\\"')
+                            .replace(/\u0080/g, '"'));
+                } else {
+                    curData.push({
+                        id: id,
+                        size: dataI.length * 2 + 136,
+                        expires: getTime(curTime, info.a),
+                        per: Math.round((data[i].length * 2 + 136) / size * 10000) / 100 + "%",
+                        maxage: info.a + " 天",
+                        usedate: getTime(info.d),
+                        opt: '<button onclick="del(\'' + id + '\')">删除</button>'
+                    });
+                    dataI = data[i] = tool.parseJSON(dataI.replace(/\u0081/g, '\\"')
+                            .replace(/\u0080/g, '"'));
+                    DataIlen = 0;
+                    for (p in dataI) {
+                        DataIlen++;
+                    }
+                    curData[i].len = DataIlen;
+                }
+                idIndex[id] = i;
+            }
+        })();
+        function initData (obj, query) {
+            if (query.sortName[0] === "size") {
+                sort(query.sortType[0]);
+            }
+            obj.setDatasource(curData);
+        }
+        function sort(d) {
+            var sor = d === "ASC" ? 1 : -1;
+            curData.sort(function (a, b) {
+                return (a.size - b.size) * sor;
+            })
+        }
+        window.del = function (id) {
+            if(confirm("删除后不能还原，确定要删除吗？")){
+                cstCst.removeData(cstCst._pkToIndex(id));
+                kst.destroy(id);
+            }
+        };
+        window.renderB = function (rowData, index, col) {
+            return fixB(rowData.size)
+        };
+        window.renderA = function (rowData) {
+            var idFix = {
+                "_autoCompleteData" : "kst本地自动完成",
+                "_kStorageCreateManager": "kst过期管理",
+                "_kStorageSessionManager": "kst模拟即时cookie",
+                "_kStorageCookieManager": "kst模拟cookie"
+            }, id = rowData.id;
+            if ("_autoCompleteData _kStorageCreateManager _kStorageSessionManager _kStorageCookieManager"
+                    .indexOf(id) > -1) {
+                if ("_kStorageCreateManager" !== id) {
+                    return '<a title="查看详细" href="#" onclick="dialog(\'' + id + '\')"><span class="red">' + idFix[id] + '</div></a>'
+                } else {
+                    return idFix[id] + '(不可查看)';
+                }
+            } else {
+                return '<a title="查看详细" href="#" onclick="dialog(\'' + id + '\')">' + id + '</a>'
+            }
+        };
+        window.cstCst = cui("#cst-cst").grid({
+            selectrows: "no",
+            datasource: initData,
+            pagination: false,
+            primarykey: "id",
+            gridheight: "auto",
+            resizewidth : getBodyWidth
+        });
+
+
+        window.dialog = function (id) {
+            var idFix = {
+                "_autoCompleteData" : "kst本地自动完成",
+                "_kStorageCreateManager": "kst过期管理",
+                "_kStorageSessionManager": "kst模拟及时cookie",
+                "_kStorageCookieManager": "kst模拟cookie"
+            };
+            if ("_kStorageCreateManager" === id) {
+                return;
+            }
+            if (myDialog[id]) {
+                myDialog[id].reload(myDialog[id].localtion + "?r=" + Math.random()).show();
+                return;
+            }
+            if ("_autoCompleteData _kStorageSessionManager _kStorageCookieManager"
+                    .indexOf(id) > -1) {
+                myDialog[id] = cui.dialog({
+                    src: id + ".html",
+                    width: getBodyWidth() - 40,
+                    height: getBodyHeight() - 80,
+                    draggable: false,
+                    title: idFix[id] + "-详细信息"
+                }).show();
+                myDialog[id].localtion =  id + ".html";
+            } else {
+                myDialog[id] = cui.dialog({
+                    src: "info.html#" + id,
+                    width: getBodyWidth() - 40,
+                    height: getBodyHeight() - 80,
+                    draggable: false,
+                    title: id + "-详细信息"
+                }).show();
+                myDialog[id].localtion =  "info.html#" + id;
+            }
+        };
+        window.data = data;
+        window.idIndex = idIndex;
+    })();
+
+
+
+</script>
+</body>
+</html>
