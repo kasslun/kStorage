@@ -1,4 +1,4 @@
-kStorage
+kStorage——本地存储框架
 ========
 特性
 --------
@@ -12,15 +12,15 @@ kStorage
 
 如何使用
 --------
-支持IE6+以及其他主流浏览器引用kStorage.full.min.js。
-`<script src="kStorage.full.min.js" type="text/javascript"></script>`
-不需要支持IE6-7引用kStorage.min.js。
-`<script src="kStorage.min.js" type="text/javascript"></script>`
-开始使用
-`var myStorage = kst.use("myStorage");`
-`myStorage.set("myName", "Jason");`
-`myStorage.get("myName");`
+支持IE6+以及其他主流浏览器引用kStorage.full.min.js。   
+`<script src="kStorage.full.min.js" type="text/javascript"></script>`   
+不需要支持IE6-7引用kStorage.min.js。   
+`<script src="kStorage.min.js" type="text/javascript"></script>`   
+开始使用   
+`var myStorage = kst.use("myStorage");`   
+`myStorage.set("myName", "Jason");`    
+`myStorage.get("myName");`   
 
-API、例子、以及说明
+API、例子、以及说明请访问[http://kasslun.github.io/kStorage/index.html](http://kasslun.github.io/kStorage/index.html)
 --------
-[http://kasslun.github.io/kStorage/index.html](http://kasslun.github.io/kStorage/index.html)
+
