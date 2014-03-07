@@ -1,5 +1,6 @@
 kStorage——本地存储框架
 ========
+API、例子、以及说明请访问http://kasslun.github.io/kStorage/index.html
 特性
 --------
 *    是一个轻量级的高效的javascript本地存储框架，即实现文本数据离线存储到浏览器端。
@@ -22,6 +23,4 @@ var myStorage = kst.use("myStorage");
  myStorage.set("myName", "Jason");      
  myStorage.get("myName");
  ```
-API、例子、以及说明请访问[http://kasslun.github.io/kStorage/index.html](http://kasslun.github.io/kStorage/index.html)
---------
 
