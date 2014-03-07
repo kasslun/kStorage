@@ -13,10 +13,14 @@ API、例子、以及说明请访问http://kasslun.github.io/kStorage/index.html
 
 如何使用
 --------
-支持IE6+以及其他主流浏览器引用kStorage.full.min.js。   
-`<script src="kStorage.full.min.js" type="text/javascript"></script>`   
-不需要支持IE6-7引用kStorage.min.js。   
-`<script src="kStorage.min.js" type="text/javascript"></script>`   
+支持IE6+以及其他主流浏览器引用kStorage.full.min.js。
+```html
+<script src="kStorage.full.min.js" type="text/javascript"></script>
+```
+不需要支持IE6-7引用kStorage.min.js。
+```html
+<script src="kStorage.min.js" type="text/javascript"></script>
+```
 开始使用
 ```javascript
 var myStorage = kst.use("myStorage");      
