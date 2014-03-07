@@ -18,9 +18,9 @@ API、例子、以及说明请访问http://kasslun.github.io/kStorage/index.html
 不需要支持IE6-7引用kStorage.min.js。   
 `<script src="kStorage.min.js" type="text/javascript"></script>`   
 开始使用
-```javascript
+``javascript
 var myStorage = kst.use("myStorage");      
  myStorage.set("myName", "Jason");      
  myStorage.get("myName");
- ```
+ ``
 
