@@ -366,7 +366,7 @@
             if ("_autoCompleteData _kStorageSessionManager _kStorageCookieManager"
                     .indexOf(id) > -1) {
                 myDialog[id] = cui.dialog({
-                    src: id + ".html",
+                    src: id.slice(1) + ".html",
                     width: getBodyWidth() - 40,
                     height: getBodyHeight() - 80,
                     draggable: false,
