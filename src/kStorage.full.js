@@ -670,7 +670,7 @@
         if (doc.body) {
             doc.body.appendChild(ifm);
         } else {
-            doc.appendChild(ifm);
+            doc.getElementsByTagName("head")[0].appendChild(ifm);
         }
         fdoc = ifm.contentWindow.document;
     })();
