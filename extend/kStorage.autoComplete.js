@@ -20,14 +20,14 @@
         body = doc.getElementsByTagName("body")[0],
         autoCompleteData = kst.use("_autoCompleteData", 360),
         maxLength = 1000,
-        //来自jq
+    //来自jq
         trim = String.prototype.trim ? function( text ) {
             return String.prototype.trim.call( text );
         } : function( text ) {
             return (text).replace( /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "" );
         },
         _localautocomplete,
-        //绑定事件兼容方法
+    //绑定事件兼容方法
         bind = doc.addEventListener ? function (ele, type, handler) {
             ele.addEventListener(type, handler);
         } : function (ele, type, handler) {
@@ -35,7 +35,7 @@
                 handler.call(ele);
             });
         },
-        //查元素是否存在border，包括css样式以及行内样式
+    //查元素是否存在border，包括css样式以及行内样式
         curBottomstyle =  function (ele) {
             var css = ele.style.cssText || "",
                 height;
@@ -44,7 +44,7 @@
             ele.style.cssText = css;
             return ele.offsetHeight !== height;
         },
-        //取消默认
+    //取消默认
         preventDefault = function (e) {
             if (e.preventDefault) {
                 e.preventDefault();
@@ -170,7 +170,7 @@
                 var value = trim(this.value),
                     length = value.length;
                 if (length > 1 && length < 21) {
-                    if (this.data) {
+                    if (self.data) {
                         self.updateData(value);
                     }
                 }
@@ -346,18 +346,18 @@
                 inputHeight = currEle.offsetHeight,
                 inputWidth = currEle.offsetWidth,
                 rect = currEle.getBoundingClientRect(),
-                //顶部空间
+            //顶部空间
                 topSpace = rect.top - offset + (html.scrollTop || body.scrollTop),
-                //下部空间
+            //下部空间
                 bottomSpace = Math.max.apply(null, [
                     html.clientHeight && html.scrollHeight,
                     body.clientHeight,
                     body.scrollHeight,
                     html.clientHeight
                 ]) - topSpace - inputHeight,
-                //左边空间
+            //左边空间
                 leftSpace = rect.left - offset + (html.scrollLeft || body.scrollLeft),
-                //右边空间
+            //右边空间
                 rightSpace = Math.max.apply(null, [
                     html.clientWidth && html.scrollWidth,
                     body.clientWidth,
