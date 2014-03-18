@@ -13,6 +13,9 @@
  */
 ;(function (win) {
     "use strict";
+    if(win.kStorage) {
+        return;
+    }
     var defaultAge = 0, maxAge = Number.MAX_VALUE,
         noop = function () {},
         kStorage = win.kst = win.kStorage = {
